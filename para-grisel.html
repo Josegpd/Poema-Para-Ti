@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Para Grisel</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,400;1,9..144,500&family=Manrope:wght@300;400;500;600&display=swap');
+
+  :root{
+    --bg-deep:#170b10;
+    --bg-mid:#241119;
+    --bg-soft:#2f1622;
+    --gold:#c9a15a;
+    --gold-soft:#e3c98d;
+    --blush:#e8a2ab;
+    --cream:#f4e8dc;
+    --muted:#b98fa0;
+    --line: rgba(201,161,90,0.35);
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    background:var(--bg-deep);
+    color:var(--cream);
+    font-family:'Manrope', sans-serif;
+    overflow-x:hidden;
+    min-height:100vh;
+  }
+
+  ::selection{background:var(--gold); color:var(--bg-deep);}
+
+  /* ambient background */
+  .ambient{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(ellipse 60% 40% at 15% 10%, rgba(232,162,171,0.10), transparent 60%),
+      radial-gradient(ellipse 50% 40% at 85% 30%, rgba(201,161,90,0.10), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 50% 90%, rgba(232,162,171,0.08), transparent 60%),
+      linear-gradient(180deg, var(--bg-deep), var(--bg-mid) 40%, var(--bg-soft) 70%, var(--bg-deep));
+  }
+
+  .petal{
+    position:fixed; z-index:1; pointer-events:none;
+    opacity:0.35; filter: blur(0.2px);
+    animation: drift linear infinite;
+  }
+  @keyframes drift{
+    from{ transform:translateY(-10vh) rotate(0deg); }
+    to{ transform:translateY(110vh) rotate(180deg); }
+  }
+
+  /* progress vine */
+  .vine-wrap{
+    position:fixed; left:28px; top:0; bottom:0; width:40px; z-index:5;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .vine-wrap svg{ height:70vh; width:40px; overflow:visible; }
+  .vine-track{ fill:none; stroke:rgba(201,161,90,0.15); stroke-width:1.5; }
+  .vine-fill{ fill:none; stroke:var(--gold-soft); stroke-width:1.5; stroke-linecap:round;
+    stroke-dasharray: 1000; stroke-dashoffset:1000; transition: stroke-dashoffset 0.1s linear; }
+
+  @media (max-width: 720px){
+    .vine-wrap{ display:none; }
+  }
+
+  /* gate / hero entrance */
+  .gate{
+    position:fixed; inset:0; z-index:50;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:var(--bg-deep);
+    text-align:center; padding:32px;
+    transition: opacity 1s ease, visibility 1s ease;
+  }
+  .gate.hidden{ opacity:0; visibility:hidden; pointer-events:none; }
+  .gate .eyebrow{
+    font-size:12px; letter-spacing:0.35em; text-transform:uppercase;
+    color:var(--muted); margin-bottom:18px;
+  }
+  .gate h1{
+    font-family:'Fraunces', serif; font-weight:400; font-style:italic;
+    font-size:clamp(2.2rem, 7vw, 4rem); color:var(--gold-soft);
+    margin-bottom:10px; line-height:1.1;
+  }
+  .gate .from{
+    font-size:14px; letter-spacing:0.1em; color:var(--muted); margin-bottom:48px;
+  }
+  .start-btn{
+    background:none; border:1px solid var(--gold);
+    color:var(--cream); font-family:'Manrope',sans-serif; font-size:13px;
+    letter-spacing:0.15em; text-transform:uppercase;
+    padding:16px 36px; border-radius:999px; cursor:pointer;
+    display:flex; align-items:center; gap:12px;
+    transition: background 0.4s ease, color 0.4s ease, transform 0.3s ease;
+  }
+  .start-btn:hover{ background:var(--gold); color:var(--bg-deep); transform:translateY(-2px); }
+  .start-btn svg{ width:16px; height:16px; }
+
+  /* sections */
+  main{ position:relative; z-index:2; }
+
+  section{
+    min-height:100vh;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    padding: 12vh 8vw;
+    text-align:center;
+    position:relative;
+  }
+
+  .intro-section h2{
+    font-family:'Fraunces', serif; font-style:italic; font-weight:400;
+    font-size:clamp(1.6rem, 4.5vw, 2.4rem); color:var(--muted);
+    max-width:560px; line-height:1.5;
+  }
+
+  .stanza{
+    max-width:680px;
+  }
+  .stanza .icon{
+    width:34px; height:34px; margin:0 auto 28px;
+    opacity:0; transform:translateY(14px);
+    transition: opacity 1s ease, transform 1s ease;
+  }
+  .stanza.visible .icon{ opacity:0.85; transform:translateY(0); }
+
+  .stanza .line{
+    font-family:'Fraunces', serif; font-weight:400;
+    font-size:clamp(1.5rem, 4.2vw, 2.6rem);
+    line-height:1.45; color:var(--cream);
+    opacity:0; transform:translateY(24px);
+    transition: opacity 0.9s ease, transform 0.9s ease;
+  }
+  .stanza .line em{
+    font-style:italic; color:var(--gold-soft);
+  }
+  .stanza .line:nth-child(2){ transition-delay:0.15s; }
+  .stanza .line:nth-child(3){ transition-delay:0.3s; }
+  .stanza .line:nth-child(4){ transition-delay:0.45s; }
+
+  .stanza.visible .line{ opacity:1; transform:translateY(0); }
+
+  .stanza .line + .line{ margin-top:10px; }
+
+  .divider{
+    width:1px; height:60px; background:linear-gradient(var(--gold), transparent);
+    margin:8vh auto 0; opacity:0.5;
+  }
+
+  /* closing */
+  .closing .line{ font-size:clamp(1.7rem, 5vw, 3rem); }
+  .closing .signature{
+    margin-top:64px; opacity:0; transform:translateY(14px);
+    transition: opacity 1.2s ease 0.6s, transform 1.2s ease 0.6s;
+  }
+  .closing.visible .signature{ opacity:1; transform:translateY(0); }
+  .signature .names{
+    font-family:'Fraunces', serif; font-style:italic; font-size:clamp(1.3rem,3.5vw,1.8rem);
+    color:var(--gold-soft);
+  }
+  .signature .heart{ width:22px; height:22px; margin:14px auto 0; color:var(--blush); }
+
+  footer{
+    padding:8vh 8vw 14vh; text-align:center;
+    font-size:12px; letter-spacing:0.15em; color:var(--muted); text-transform:uppercase;
+  }
+
+  /* music control */
+  .music-btn{
+    position:fixed; bottom:24px; right:24px; z-index:40;
+    width:52px; height:52px; border-radius:50%;
+    background:rgba(23,11,16,0.8); backdrop-filter: blur(6px);
+    border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition: transform 0.3s ease, border-color 0.3s ease;
+  }
+  .music-btn:hover{ transform:scale(1.06); border-color:var(--gold); }
+  .music-btn svg{ width:18px; height:18px; color:var(--gold-soft); }
+  .music-btn .bars{ display:flex; gap:2px; align-items:flex-end; height:14px; }
+  .music-btn .bars span{
+    width:2.5px; background:var(--gold-soft); border-radius:2px;
+    animation: bar 1s ease-in-out infinite;
+  }
+  .music-btn.paused .bars span{ animation-play-state:paused; height:4px !important; }
+  .bars span:nth-child(1){ animation-delay:0s; }
+  .bars span:nth-child(2){ animation-delay:0.2s; }
+  .bars span:nth-child(3){ animation-delay:0.4s; }
+  @keyframes bar{
+    0%,100%{ height:4px; } 50%{ height:14px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.3s !important; }
+    html{ scroll-behavior:auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ambient"></div>
+<div id="petals"></div>
+
+<div class="vine-wrap">
+  <svg viewBox="0 0 40 400" preserveAspectRatio="none">
+    <path class="vine-track" d="M20,0 C30,60 10,120 20,180 C30,240 10,300 20,400" />
+    <path class="vine-fill" id="vineFill" d="M20,0 C30,60 10,120 20,180 C30,240 10,300 20,400" pathLength="1000"/>
+  </svg>
+</div>
+
+<div class="gate" id="gate">
+  <div class="eyebrow">Un poema para</div>
+  <h1>Grisel</h1>
+  <div class="from">de José</div>
+  <button class="start-btn" id="startBtn">
+    Comenzar
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 6l6 6-6 6"/></svg>
+  </button>
+</div>
+
+<button class="music-btn paused" id="musicBtn" aria-label="Reproducir música">
+  <div class="bars"><span></span><span></span><span></span></div>
+</button>
+<audio id="bgAudio" loop preload="auto">
+  <source src="cancion.mp3" type="audio/mpeg">
+</audio>
+
+<main>
+
+  <section class="intro-section">
+    <h2>Desliza despacio.<br>Cada verso es un latido.</h2>
+  </section>
+
+  <section>
+    <div class="stanza">
+      <div class="line">Dicen que la felicidad te la da el dinero</div>
+      <div class="line">Que la felicidad es algo material</div>
+      <div class="line">Aunque tengo todo eso</div>
+      <div class="line"><em>Nada lo llena como tu sonrisa</em></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="stanza">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="var(--gold-soft)" stroke-width="1.3">
+        <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>
+      </svg>
+      <div class="line">Cada que te veo</div>
+      <div class="line">Conviertes mis latidos</div>
+      <div class="line">En descontrol</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="stanza">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="var(--gold-soft)" stroke-width="1.3">
+        <path d="M18 11V7a2 2 0 0 0-4 0v1M14 8V6a2 2 0 0 0-4 0v2M10 8V5a2 2 0 0 0-4 0v10c0 4 3 7 7 7h1a6 6 0 0 0 6-6v-4a2 2 0 0 0-4 0v1"/>
+      </svg>
+      <div class="line">Cada que te siento</div>
+      <div class="line">Conviertes mi caos en orden</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="stanza">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="var(--gold-soft)" stroke-width="1.3">
+        <path d="M3 10c2-4 6-6 9-6s7 2 9 6c-2 4-6 6-9 6s-7-2-9-6z"/><circle cx="12" cy="10" r="2.3"/>
+      </svg>
+      <div class="line">Cada que te oigo</div>
+      <div class="line">Te vuelves mi atención</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="stanza">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="var(--gold-soft)" stroke-width="1.3">
+        <path d="M9 20c-3-1-4-4-3-7 1-2 3-3 3-6 0-2-1-3-1-3s4 0 5 4c1-2 3-3 3-3s1 4-1 7c-1 2-1 4 0 6"/>
+      </svg>
+      <div class="line">Cada que te huelo</div>
+      <div class="line">Descontrolas todo en mí</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="stanza">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="var(--gold-soft)" stroke-width="1.3">
+        <path d="M4 12c2 5 6 8 8 8s6-3 8-8c-2-5-6-8-8-8s-6 3-8 8z"/><path d="M4 12h16"/>
+      </svg>
+      <div class="line">Cada que te saboreo</div>
+      <div class="line">Despiertas mi curiosidad</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="stanza closing">
+      <div class="line">Sin ti las nubes son sombrías</div>
+      <div class="line">La vida es apagada y monótona</div>
+      <div class="line"><em>Pero contigo la vida se transforma</em></div>
+      <div class="line">En algo que ninguna persona</div>
+      <div class="line"><em>Puede describir con una sola palabra</em></div>
+
+      <div class="signature">
+        <svg class="heart" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.6-10-9.3C.5 8 2 4.5 5.5 4c2.2-.3 3.9 1 6.5 3.4C14.6 5 16.3 3.7 18.5 4c3.5.5 5 4 3.5 7.7C19.5 16.4 12 21 12 21z"/></svg>
+        <div class="names">José &amp; Grisel</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>Para siempre, un verso a la vez</footer>
+
+</main>
+
+<script>
+  // floating petals
+  const petalsWrap = document.getElementById('petals');
+  const petalCount = window.innerWidth < 720 ? 8 : 14;
+  for(let i=0;i<petalCount;i++){
+    const p = document.createElement('div');
+    p.className='petal';
+    const size = 6 + Math.random()*8;
+    p.style.left = Math.random()*100+'vw';
+    p.style.width = size+'px';
+    p.style.height = size+'px';
+    p.style.animationDuration = (18 + Math.random()*18)+'s';
+    p.style.animationDelay = (Math.random()*-30)+'s';
+    p.innerHTML = `<svg viewBox="0 0 24 24" fill="${Math.random()>0.5?'#e8a2ab':'#c9a15a'}"><path d="M12 21s-7.5-4.6-10-9.3C.5 8 2 4.5 5.5 4c2.2-.3 3.9 1 6.5 3.4C14.6 5 16.3 3.7 18.5 4c3.5.5 5 4 3.5 7.7C19.5 16.4 12 21 12 21z"/></svg>`;
+    petalsWrap.appendChild(p);
+  }
+
+  // reveal on scroll
+  const stanzas = document.querySelectorAll('.stanza');
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.classList.add('visible'); }
+    });
+  }, { threshold: 0.35 });
+  stanzas.forEach(s=>obs.observe(s));
+
+  // vine progress
+  const vineFill = document.getElementById('vineFill');
+  function updateVine(){
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const pct = Math.min(1, Math.max(0, scrollTop/docHeight));
+    vineFill.style.strokeDashoffset = 1000 - (1000*pct);
+  }
+  window.addEventListener('scroll', updateVine);
+  updateVine();
+
+  // gate + audio
+  const gate = document.getElementById('gate');
+  const startBtn = document.getElementById('startBtn');
+  const audio = document.getElementById('bgAudio');
+  const musicBtn = document.getElementById('musicBtn');
+
+  startBtn.addEventListener('click', ()=>{
+    gate.classList.add('hidden');
+    audio.volume = 0.6;
+    audio.play().then(()=>{
+      musicBtn.classList.remove('paused');
+    }).catch(()=>{
+      musicBtn.classList.add('paused');
+    });
+    document.body.style.overflow='auto';
+  });
+
+  musicBtn.addEventListener('click', ()=>{
+    if(audio.paused){
+      audio.play().then(()=>musicBtn.classList.remove('paused'));
+    } else {
+      audio.pause();
+      musicBtn.classList.add('paused');
+    }
+  });
+</script>
+
+</body>
+</html>
